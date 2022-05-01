@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
                     data[0] = txtCorreo.text.toString()
                     data[1] = txtPassword.text.toString()
                     val putData = PutData(
-                        "http://192.168.100.9/php/login.php",
+                        "http://192.168.100.9/php/sistemas-moviles-php/login.php",
                         "POST",
                         field,
                         data

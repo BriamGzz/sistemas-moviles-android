@@ -60,7 +60,7 @@ class RegisterActivity : AppCompatActivity() {
                     data[3] = txtPassword.text.toString()
                     data[4] = "0";
                     val putData = PutData(
-                        "http://192.168.100.9/php/signup.php",
+                        "http://192.168.100.9/php/sistemas-moviles-php/signup.php",
                         "POST",
                         field,
                         data
