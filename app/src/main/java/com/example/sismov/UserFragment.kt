@@ -120,7 +120,7 @@ class UserFragment : Fragment() {
                     data[4] = txtPass
                     data[5] = strBlob
                     val putData = PutData(
-                        "http://192.168.100.9/php/sistemas-moviles-php/updateUser.php",
+                        "http://192.168.1.64/php/updateUser.php",
                         "POST",
                         field,
                         data
@@ -215,7 +215,7 @@ class UserFragment : Fragment() {
             val data = arrayOfNulls<String>(1)
             data[0] = activeUser.email;
             val putData = PutData(
-                "http://192.168.100.9/php/sistemas-moviles-php/getUser.php",
+                "http://192.168.1.64/php/getUser.php",
                 "POST",
                 field,
                 data

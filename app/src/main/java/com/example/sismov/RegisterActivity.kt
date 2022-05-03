@@ -9,10 +9,7 @@ import com.vishnusivadas.advanced_httpurlconnection.PutData
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -30,6 +27,10 @@ class RegisterActivity : AppCompatActivity() {
         var txtConfirmPassword = findViewById<EditText>(R.id.etPasswordConfirm);
         var pbRegister = findViewById<ProgressBar>(R.id.progressBarRegister);
 
+        //Codigo para el tipo de usuario
+        var radiogrupo = findViewById<RadioGroup>(R.id.radioGroup);
+        //
+
         btnToLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -40,8 +41,13 @@ class RegisterActivity : AppCompatActivity() {
 
             if(txtNombre.text.toString() != "" && txtApellidos.text.toString() != "" && txtCorreo.text.toString() != "" &&
                 txtPassword.text.toString() != "" && (txtPassword.text.toString() == txtConfirmPassword.text.toString()) ) {
-
                 pbRegister.visibility = View.VISIBLE;
+
+                //Codigo para el tipo de usuario
+                var selectedId = radiogrupo.checkedRadioButtonId;
+                var usertype = findViewById<RadioButton>(selectedId);
+                //
+
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {
                     //Starting Write and Read data with URL
@@ -58,9 +64,16 @@ class RegisterActivity : AppCompatActivity() {
                     data[1] = txtApellidos.text.toString()
                     data[2] = txtCorreo.text.toString()
                     data[3] = txtPassword.text.toString()
-                    data[4] = "0";
+
+                    //Codigo nuevo para saber el tipo de usuario
+                    if(usertype.text.toString() == "Cliente")
+                        data[4] = "0";
+                    else
+                        data[4] = "1";
+                    //Fin del codigo nuevo xd
+
                     val putData = PutData(
-                        "http://192.168.100.9/php/sistemas-moviles-php/signup.php",
+                        "http://192.168.1.64/php/signup.php",
                         "POST",
                         field,
                         data
