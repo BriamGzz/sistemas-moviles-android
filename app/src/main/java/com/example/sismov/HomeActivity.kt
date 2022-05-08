@@ -19,6 +19,7 @@ class HomeActivity : AppCompatActivity() {
         val fragmentProfile = UserFragment();
         val fragmentHome = HomeFragment();
         val fragmentSearch = SearchFragment();
+        val fragmentNewRest = NewRestaurantFragment();
 
         binding.btnHome.setOnClickListener {
             replaceFragment(fragmentHome);
@@ -30,6 +31,16 @@ class HomeActivity : AppCompatActivity() {
 
         binding.btnSearch.setOnClickListener {
             replaceFragment(fragmentSearch);
+        }
+
+        binding.ibNewRestaurant.setOnClickListener {
+            replaceFragment(fragmentNewRest);
+        }
+
+        if(!ActiveUser.getInstance().profileOnce) {
+            binding.ibNewRestaurant.isClickable = false
+            ActiveUser.getInstance().profileOnce = true;
+            replaceFragment(fragmentProfile);
         }
 
     }

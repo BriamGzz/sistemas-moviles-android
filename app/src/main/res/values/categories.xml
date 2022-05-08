@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="categories">
+        <item>Comida Rápida</item>
+        <item>Pizzas</item>
+        <item>Hamburguesas</item>
+        <item>Tacos</item>
+        <item>Veggie</item>
+        <item>Carne</item>
+        <item>Comida Mexicana</item>
+        <item>Comida China</item>
+        <item>Comida Italiana</item>
+    </string-array>
+</resources>

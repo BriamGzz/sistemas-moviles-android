@@ -15,6 +15,8 @@ public class ActiveUser {
     private static String creation_date = "";
     private static Integer active = 0;
 
+    private static Boolean profileOnce = false;
+
     protected ActiveUser() {
         // Exists only to defeat instantiation.
     }
@@ -24,6 +26,14 @@ public class ActiveUser {
             instance = new ActiveUser();
         }
         return instance;
+    }
+
+    public Boolean getProfileOnce() {
+        return profileOnce;
+    }
+
+    public void setProfileOnce(Boolean profileOnce) {
+        ActiveUser.profileOnce = profileOnce;
     }
 
     public Integer getUser_type_id() {
@@ -117,6 +127,7 @@ public class ActiveUser {
         phone = "";
         creation_date = "";
         active = 0;
+        profileOnce = false;
     }
 
 }

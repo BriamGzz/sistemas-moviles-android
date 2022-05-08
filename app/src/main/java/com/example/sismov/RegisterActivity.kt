@@ -28,7 +28,7 @@ class RegisterActivity : AppCompatActivity() {
         var pbRegister = findViewById<ProgressBar>(R.id.progressBarRegister);
 
         //Codigo para el tipo de usuario
-        var radiogrupo = findViewById<RadioGroup>(R.id.radioGroup);
+        var rbType = findViewById<RadioButton>(R.id.rbClient);
         //
 
         btnToLogin.setOnClickListener {
@@ -44,8 +44,14 @@ class RegisterActivity : AppCompatActivity() {
                 pbRegister.visibility = View.VISIBLE;
 
                 //Codigo para el tipo de usuario
-                var selectedId = radiogrupo.checkedRadioButtonId;
-                var usertype = findViewById<RadioButton>(selectedId);
+                var isRestaurant = rbType.isChecked.not();
+                var clientType: Int;
+                
+                if(isRestaurant) {
+                    clientType = 1;
+                } else {
+                    clientType = 0;
+                }
                 //
 
                 val handler = Handler(Looper.getMainLooper())
@@ -64,16 +70,11 @@ class RegisterActivity : AppCompatActivity() {
                     data[1] = txtApellidos.text.toString()
                     data[2] = txtCorreo.text.toString()
                     data[3] = txtPassword.text.toString()
-
-                    //Codigo nuevo para saber el tipo de usuario
-                    if(usertype.text.toString() == "Cliente")
-                        data[4] = "0";
-                    else
-                        data[4] = "1";
-                    //Fin del codigo nuevo xd
+                    data[4] = clientType.toString();
 
                     val putData = PutData(
-                        "http://192.168.1.64/php/signup.php",
+                        //"http://192.168.1.64/php/signup.php",
+                        "http://192.168.100.9/php/sistemas-moviles-php/signup.php",
                         "POST",
                         field,
                         data

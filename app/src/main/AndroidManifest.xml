@@ -14,9 +14,6 @@
         android:theme="@style/Theme.SisMov"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".Register_restaurants_Activity"
-            android:exported="false" />
-        <activity
             android:name=".LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Design.Light.NoActionBar" />

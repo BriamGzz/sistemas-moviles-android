@@ -44,7 +44,10 @@ class UserFragment : Fragment() {
     private var profileNewPass = view?.findViewById<EditText>(R.id.edNewPassword)
     private var profileNewPassConfirm = view?.findViewById<EditText>(R.id.edNewPasswordConfirm)
     private var profileEmail = view?.findViewById<EditText>(R.id.edProfileEmail)
+    private var userType = view?.findViewById<TextView>(R.id.tvType)
     private var pbProfile = view?.findViewById<ProgressBar>(R.id.progressBarProfile)
+
+    private var btnNewRestaurant = view?.findViewById<ImageButton>(R.id.ibNewRestaurant)
 
     private val activeUser = ActiveUser()
 
@@ -71,6 +74,9 @@ class UserFragment : Fragment() {
         profileNewPassConfirm = view?.findViewById<EditText>(R.id.edNewPasswordConfirm)
         profileEmail = view?.findViewById<EditText>(R.id.edProfileEmail)
         pbProfile = view?.findViewById<ProgressBar>(R.id.progressBarProfile)
+        userType = view?.findViewById<TextView>(R.id.tvType)
+
+        btnNewRestaurant = view?.findViewById<ImageButton>(R.id.ibNewRestaurant)
 
         btnConfirmChanges?.setOnClickListener {
             var canChange = true
@@ -120,7 +126,8 @@ class UserFragment : Fragment() {
                     data[4] = txtPass
                     data[5] = strBlob
                     val putData = PutData(
-                        "http://192.168.1.64/php/updateUser.php",
+                        //"http://192.168.1.64/php/updateUser.php",
+                        "http://192.168.100.9/php/sistemas-moviles-php/updateUser.php",
                         "POST",
                         field,
                         data
@@ -192,8 +199,16 @@ class UserFragment : Fragment() {
             profilePic?.setImageBitmap(bmp)
         }
 
-        // Tipo de usuario 0 -> Cliente
-        // Tipo de usuario 1 -> Restaurante
+        if(activeUser.user_type_id == 0) {
+            userType?.text = "Tipo de cuenta: Cliente"
+            btnNewRestaurant?.visibility = View.GONE
+            btnNewRestaurant?.isClickable = false
+        }
+        else if(activeUser.user_type_id == 1) {
+            userType?.text = "Tipo de cuenta: Restaurantero"
+            btnNewRestaurant?.visibility = View.VISIBLE
+            btnNewRestaurant?.isClickable = true
+        }
 
         profileName?.setText(activeUser.name)
         profileSName?.setText(activeUser.second_name)
@@ -215,7 +230,8 @@ class UserFragment : Fragment() {
             val data = arrayOfNulls<String>(1)
             data[0] = activeUser.email;
             val putData = PutData(
-                "http://192.168.1.64/php/getUser.php",
+                //"http://192.168.1.64/php/getUser.php",
+                "http://192.168.100.9/php/sistemas-moviles-php/getUser.php",
                 "POST",
                 field,
                 data
