@@ -1,15 +1,9 @@
 package com.example.sismov
 
-import android.Manifest
 import android.app.Activity.RESULT_OK
-import android.content.ContentResolver
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,21 +15,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.content.PermissionChecker.checkSelfPermission
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.drawToBitmap
 import com.example.sismov.Clases.Usuario
 import com.google.gson.Gson
 import com.vishnusivadas.advanced_httpurlconnection.PutData
 import java.io.ByteArrayOutputStream
-import java.sql.Blob
-import kotlin.math.log
 
 
 class UserFragment : Fragment() {
     private var user = Usuario()
 
     private var btnConfirmChanges = view?.findViewById<Button>(R.id.btnGuardarCambios)
+    private var btnCerrarSesion = view?.findViewById<Button>(R.id.btnCerrarSesion)
 
     private var profilePic = view?.findViewById<ImageView>(R.id.ivProfilePicture)
     private var profileName = view?.findViewById<EditText>(R.id.edProfileName)
@@ -47,7 +38,7 @@ class UserFragment : Fragment() {
     private var userType = view?.findViewById<TextView>(R.id.tvType)
     private var pbProfile = view?.findViewById<ProgressBar>(R.id.progressBarProfile)
 
-    private var btnNewRestaurant = view?.findViewById<ImageButton>(R.id.ibNewRestaurant)
+    private var btnNewRestaurant = activity?.findViewById<ImageButton>(R.id.btnNewRestaurant)
 
     private val activeUser = ActiveUser()
 
@@ -64,6 +55,7 @@ class UserFragment : Fragment() {
 
     override fun onResume() {
         btnConfirmChanges = view?.findViewById<Button>(R.id.btnGuardarCambios)
+        btnCerrarSesion = view?.findViewById<Button>(R.id.btnCerrarSesion)
 
         profilePic = view?.findViewById<ImageView>(R.id.ivProfilePicture)
 
@@ -76,7 +68,7 @@ class UserFragment : Fragment() {
         pbProfile = view?.findViewById<ProgressBar>(R.id.progressBarProfile)
         userType = view?.findViewById<TextView>(R.id.tvType)
 
-        btnNewRestaurant = view?.findViewById<ImageButton>(R.id.ibNewRestaurant)
+        btnNewRestaurant = activity?.findViewById<ImageButton>(R.id.btnNewRestaurant)
 
         btnConfirmChanges?.setOnClickListener {
             var canChange = true
@@ -163,6 +155,14 @@ class UserFragment : Fragment() {
             pickImageFromGallery()
         }
 
+        btnCerrarSesion?.setOnClickListener {
+            btnNewRestaurant?.isClickable = false
+            ActiveUser.getInstance().cleanAll()
+            val intent = Intent(context, LoginActivity::class.java)
+            startActivity(intent)
+            activity?.finish()
+        }
+
         super.onResume()
     }
 
@@ -240,10 +240,10 @@ class UserFragment : Fragment() {
             )
             if (putData.startPut()) {
                 if (putData.onComplete()) {
+                    pbProfile?.visibility = View.GONE;
                     val result = putData.result
                     Log.i("PutData", result)
                     if (result != "false") {
-                        pbProfile?.visibility = View.GONE;
                         val gson = Gson()
                         user = gson.fromJson(result, Usuario::class.java)
                         fillInfo()

@@ -1,59 +1,117 @@
 package com.example.sismov
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.sismov.Adapters.RestaurantsAdapter
+import com.example.sismov.Clases.Restaurante
+import com.google.gson.Gson
+import com.vishnusivadas.advanced_httpurlconnection.PutData
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var rvAllRestaurants : RecyclerView
+    private lateinit var tvHome : TextView
+    private lateinit var pbHome : ProgressBar
+    private lateinit var allRestaurants : ArrayList<Restaurante>
+    private lateinit var allRestaurantsJSON : String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onResume() {
+
+        rvAllRestaurants = view?.findViewById<RecyclerView>(R.id.rvAllRestaurants)!!
+        tvHome = view?.findViewById<TextView>(R.id.tvHome)!!
+        pbHome = view?.findViewById(R.id.pbHome)!!
+
+        pbHome.visibility = View.VISIBLE;
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(1)
+            field[0] = "table"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(1)
+            data[0] = "restaurantes"
+
+            val putData = PutData(
+                //"http://192.168.1.64/php/signup.php",
+                //"http://192.168.100.9/php/sistemas-moviles-php/login.php"
+                "https://proyectodepsm.000webhostapp.com/getAllRestaurants.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbHome.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    if(!result.equals("Error: Database connection")) {
+                        val gson = Gson()
+                        val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
+
+                        allRestaurants = gson.fromJson<ArrayList<Restaurante>>(result, listType)
+
+                        rvAllRestaurants.layoutManager = LinearLayoutManager(context)
+                        rvAllRestaurants.setHasFixedSize(true)
+                        getAllRestaurants()
+
+                    } else {
+                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
+            //End Write and Read data with URL
+        })
+
+        super.onResume()
     }
+
+    private fun getAllRestaurants() {
+        val adapter = RestaurantsAdapter(allRestaurants)
+
+        rvAllRestaurants.adapter = adapter
+
+        adapter.setOnItemSetClickListener(object : RestaurantsAdapter.onItemClickListener{
+            override fun onItemClick(position: Int, restaurant_id: String) {
+                var bundle = Bundle()
+
+                bundle.putString("restaurant_id", restaurant_id)
+
+                val fragmentManager = activity?.supportFragmentManager
+                val fragmentTransaction = fragmentManager?.beginTransaction()
+                val fragment = RestaurantFragment()
+
+                fragment.arguments = bundle
+
+                fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
+                fragmentTransaction?.commit()
+
+            }
+
+        })
+
+    }
+
 }

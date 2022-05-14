@@ -3,6 +3,7 @@ package com.example.sismov
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.sismov.databinding.ActivityHomeBinding
 
@@ -33,14 +34,13 @@ class HomeActivity : AppCompatActivity() {
             replaceFragment(fragmentSearch);
         }
 
-        binding.ibNewRestaurant.setOnClickListener {
+        binding.btnNewRestaurant.setOnClickListener {
             replaceFragment(fragmentNewRest);
         }
 
         if(!ActiveUser.getInstance().profileOnce) {
-            binding.ibNewRestaurant.isClickable = false
-            ActiveUser.getInstance().profileOnce = true;
-            replaceFragment(fragmentProfile);
+            ActiveUser.getInstance().profileOnce = true
+            replaceFragment(fragmentProfile)
         }
 
     }
