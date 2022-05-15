@@ -152,21 +152,12 @@
                         android:id="@+id/btnGuardarCambios"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginEnd="32dp"
                         android:layout_weight="1"
                         android:minHeight="48dp"
                         android:text="Guardar restaurante" />
 
-                    <Button
-                        android:id="@+id/btnRegRestReturn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:minHeight="48dp"
-                        android:text="Salir" />
                 </LinearLayout>
 
             </LinearLayout>

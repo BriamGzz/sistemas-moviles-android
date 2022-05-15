@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.drawToBitmap
 import com.example.sismov.Clases.Usuario
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.vishnusivadas.advanced_httpurlconnection.PutData
 import java.io.ByteArrayOutputStream
@@ -39,6 +40,8 @@ class UserFragment : Fragment() {
     private var pbProfile = view?.findViewById<ProgressBar>(R.id.progressBarProfile)
 
     private var btnNewRestaurant = activity?.findViewById<ImageButton>(R.id.btnNewRestaurant)
+    private var btnHistorial = view?.findViewById<FloatingActionButton>(R.id.abtnMore)
+
 
     private val activeUser = ActiveUser()
 
@@ -69,6 +72,7 @@ class UserFragment : Fragment() {
         userType = view?.findViewById<TextView>(R.id.tvType)
 
         btnNewRestaurant = activity?.findViewById<ImageButton>(R.id.btnNewRestaurant)
+        btnHistorial = view?.findViewById<FloatingActionButton>(R.id.abtnMore)
 
         btnConfirmChanges?.setOnClickListener {
             var canChange = true
@@ -162,6 +166,15 @@ class UserFragment : Fragment() {
             startActivity(intent)
             activity?.finish()
         }
+
+        btnHistorial?.setOnClickListener {
+            val fragment = HistorialFragment()
+            val fragmentManager = activity?.supportFragmentManager
+            val fragmentTransaction = fragmentManager?.beginTransaction()
+            fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
+            fragmentTransaction?.commit()
+        }
+
 
         super.onResume()
     }

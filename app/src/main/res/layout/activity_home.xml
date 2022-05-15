@@ -45,7 +45,7 @@
             android:name="com.example.sismov.HomeFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_user" />
+            tools:layout="@layout/fragment_historial" />
     </LinearLayout>
 
     <LinearLayout

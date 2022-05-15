@@ -59,35 +59,27 @@
                         android:id="@+id/textView11"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:gravity="center"
                         android:text="Tu calificacion"
                         android:textAlignment="center" />
 
-                    <RatingBar
-                        android:id="@+id/ivDetailsRatingBar"
-                        style="@style/Widget.AppCompat.RatingBar.Indicator"
+                    <SeekBar
+                        android:id="@+id/sbRating"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:isIndicator="false"
-                        android:max="5"
-                        android:numStars="5"
-                        android:rating="0"
-                        android:stepSize="0.5"
-                        tools:ignore="SpeakableTextPresentCheck" />
+                        android:layout_weight="2"
+                        android:max="10"
+                        android:progress="0" />
+
+                    <TextView
+                        android:id="@+id/tvNumberCalif"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:text="0" />
 
                 </LinearLayout>
-
-                <Button
-                    android:id="@+id/btnRate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="4dp"
-                    android:backgroundTint="#386DA6"
-                    android:text="Calificar" />
 
             </LinearLayout>
 
@@ -245,7 +237,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:ems="10"
-                        android:inputType="textVisiblePassword|numberPassword"
+                        android:inputType="number"
                         android:minHeight="48dp"
                         android:numeric="integer"
                         tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />

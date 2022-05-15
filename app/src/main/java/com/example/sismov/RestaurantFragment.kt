@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.widget.doOnTextChanged
+import com.example.sismov.Clases.Calificacion
 import com.example.sismov.Clases.DatePickerFragment
 import com.example.sismov.Clases.Restaurante
 import com.example.sismov.Clases.TimePickerFragment
@@ -30,8 +31,9 @@ import java.util.*
 class RestaurantFragment : Fragment() {
 
     private lateinit var thisRestaurant : Restaurante
+    private lateinit var thisRating : Calificacion
     private lateinit var tvName : TextView
-    private lateinit var ivDetailsRating : RatingBar
+    private lateinit var sbRating : SeekBar
     private lateinit var tvCategory : TextView
     private lateinit var tvApertura : TextView
     private lateinit var tvCierre : TextView
@@ -41,9 +43,9 @@ class RestaurantFragment : Fragment() {
     private lateinit var etPersonas : EditText
     private lateinit var etPrecio : EditText
     private lateinit var btnDate : Button
-    private lateinit var btnRate : Button
     private lateinit var ivDetailsImage : ImageView
     private lateinit var pbDetails : ProgressBar
+    private lateinit var tvNumberCalif : TextView
 
     private lateinit var linlay : LinearLayout
 
@@ -60,7 +62,8 @@ class RestaurantFragment : Fragment() {
     override fun onResume() {
 
         tvName = view?.findViewById(R.id.tvDetailsName)!!
-        ivDetailsRating = view?.findViewById(R.id.ivDetailsRatingBar)!!
+        tvNumberCalif = view?.findViewById(R.id.tvNumberCalif)!!
+        sbRating = view?.findViewById(R.id.sbRating)!!
         tvCategory = view?.findViewById(R.id.tvDetailsCategory)!!
         tvApertura = view?.findViewById(R.id.tvDetailsApertura)!!
         tvCierre = view?.findViewById(R.id.tvDetailsCierre)!!
@@ -70,54 +73,14 @@ class RestaurantFragment : Fragment() {
         etPersonas = view?.findViewById(R.id.etDetailsPersonas)!!
         etPrecio = view?.findViewById(R.id.etDetailsPrecioCita)!!
         btnDate = view?.findViewById(R.id.btnDoDate)!!
-        btnRate = view?.findViewById(R.id.btnRate)!!
         ivDetailsImage = view?.findViewById(R.id.ivDetailsImage)!!
 
         linlay = view?.findViewById(R.id.linlayCita)!!
 
         pbDetails = view?.findViewById(R.id.pbDetails)!!
-        val bundle = this.arguments
-        val id = bundle?.get("restaurant_id").toString()
 
-        pbDetails.visibility = View.VISIBLE;
-        val handler = Handler(Looper.getMainLooper())
-        handler.post(Runnable {
-            //Starting Write and Read data with URL
-            //Creating array for parameters
-            val field = arrayOfNulls<String>(2)
-            field[0] = "table"
-            field[1] = "id"
-
-            //Creating array for data
-            val data = arrayOfNulls<String>(2)
-            data[0] = "restaurantes"
-            data[1] = id
-
-            val putData = PutData(
-                //"http://192.168.1.64/php/signup.php",
-                //"http://192.168.100.9/php/sistemas-moviles-php/login.php"
-                "https://proyectodepsm.000webhostapp.com/getRestaurantById.php",
-                "POST",
-                field,
-                data
-            )
-            if (putData.startPut()) {
-                if (putData.onComplete()) {
-                    val result = putData.result
-                    pbDetails.visibility = View.GONE;
-                    Log.i("PutData", result)
-                    if(!result.equals("Error: Database connection")) {
-                        val gson = Gson()
-                        thisRestaurant = gson.fromJson(result, Restaurante::class.java)
-                        getRestaurantInfo()
-
-                    } else {
-                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-            //End Write and Read data with URL
-        })
+        getRestaurantInfo()
+        getRatingInfo()
 
         btnDate.setOnClickListener {
             registerDate()
@@ -151,7 +114,116 @@ class RestaurantFragment : Fragment() {
             showDatePickerDialog(etFecha)
         }
 
+        sbRating.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                if(ActiveUser.getInstance().user_type_id == 0) {
+                    tvNumberCalif.text = sbRating.progress.toString()
+                }
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                if(ActiveUser.getInstance().user_type_id == 0) {
+                    updateMyRating()
+                }
+            }
+
+        })
+
         super.onResume()
+    }
+
+    private fun getRatingInfo() {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(3)
+            field[0] = "restaurant_id"
+            field[1] = "usuario_id"
+            field[2] = "calificaion"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(3)
+            data[0] = thisRestaurant.restaurant_id.toString()
+            data[1] = ActiveUser.getInstance().id.toString()
+            data[2] = sbRating.progress.toString()
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/getMyRating.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbDetails.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    if(!result.equals("Error: Database connection")) {
+                        val gson = Gson()
+                        thisRating = try {
+                            gson.fromJson(result, Calificacion::class.java)
+                        }catch (e:Exception) {
+                            Calificacion();
+                        }
+                        setMyRating()
+                    } else {
+                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            //End Write and Read data with URL
+        })
+    }
+
+    private fun setMyRating() {
+        if(thisRating != Calificacion()) {
+            sbRating.progress = thisRating.calificacion
+            tvNumberCalif.text = thisRating.calificacion.toString()
+        }
+    }
+
+    private fun updateMyRating() {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(3)
+            field[0] = "restaurant_id"
+            field[1] = "usuario_id"
+            field[2] = "calificacion"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(3)
+            data[0] = thisRestaurant.restaurant_id.toString()
+            data[1] = ActiveUser.getInstance().id.toString()
+            data[2] = sbRating.progress.toString()
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/updateMyRating.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbDetails.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    if(result.equals("Data get")) {
+                        getRatingInfo()
+                        Toast.makeText(context, "Gracias por tu opinión ♥", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            //End Write and Read data with URL
+        })
     }
 
     private fun registerDate() {
@@ -166,6 +238,7 @@ class RestaurantFragment : Fragment() {
             val hora = etHora.text.toString()
             val personas = etPersonas.text.toString()
             val total = Integer.parseInt(personas) * thisRestaurant.precio
+            val restaurante_nombre = thisRestaurant.nombre
 
             //region Validacion Hora
             val strApertura = "2000-01-03 ${thisRestaurant.fecha_apertura}"
@@ -229,22 +302,24 @@ class RestaurantFragment : Fragment() {
                 handler.post(Runnable {
                     //Starting Write and Read data with URL
                     //Creating array for parameters
-                    val field = arrayOfNulls<String>(6)
+                    val field = arrayOfNulls<String>(7)
                     field[0] = "usuario_id"
                     field[1] = "restaurante_id"
                     field[2] = "fecha"
                     field[3] = "hora"
                     field[4] = "personas"
                     field[5] = "total"
+                    field[6] = "restaurante_nombre"
 
                     //Creating array for data
-                    val data = arrayOfNulls<String>(6)
+                    val data = arrayOfNulls<String>(7)
                     data[0] = usuario_id
                     data[1] = restaurante_id
                     data[2] = fecha
                     data[3] = hora
                     data[4] = personas
                     data[5] = total.toString()
+                    data[6] = restaurante_nombre
 
                     val putData = PutData(
                         "https://proyectodepsm.000webhostapp.com/newDate.php",
@@ -279,10 +354,8 @@ class RestaurantFragment : Fragment() {
         }
     }
 
-    private fun getRestaurantInfo() {
+    private fun setRestaurantInfo() {
         tvName.setText(thisRestaurant.categoria)
-
-        ivDetailsRating.rating = thisRestaurant.calificacion
 
         tvCategory.setText(thisRestaurant.categoria)
         tvApertura.setText(thisRestaurant.fecha_apertura)
@@ -295,15 +368,56 @@ class RestaurantFragment : Fragment() {
             ivDetailsImage?.setImageBitmap(bmp)
         }
 
-        if(ActiveUser.getInstance().user_type_id == 1) {
+        if (ActiveUser.getInstance().user_type_id == 1) {
             linlay.visibility = View.GONE
-            btnDate.visibility = View.GONE
         } else {
             linlay.visibility = View.VISIBLE
-            btnRate.visibility = View.VISIBLE
         }
     }
 
+    private fun getRestaurantInfo() {
+        val bundle = this.arguments
+        val id = bundle?.get("restaurant_id").toString()
+
+        pbDetails.visibility = View.VISIBLE;
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(2)
+            field[0] = "table"
+            field[1] = "id"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(2)
+            data[0] = "restaurantes"
+            data[1] = id
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/getRestaurantById.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbDetails.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    if(!result.equals("Error: Database connection")) {
+                        val gson = Gson()
+                        thisRestaurant = gson.fromJson(result, Restaurante::class.java)
+                        setRestaurantInfo()
+
+                    } else {
+                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+            //End Write and Read data with URL
+        })
+
+    }
 
     //region Funciones raras
 

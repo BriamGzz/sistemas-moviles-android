@@ -10,10 +10,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sismov.Clases.Restaurante
 import com.example.sismov.R
-import org.w3c.dom.Text
 
-class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
-    RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
+class CreatedRestaurantsAdapter(private val restaurantsByUser: ArrayList<Restaurante>) :
+    RecyclerView.Adapter<CreatedRestaurantsAdapter.ViewHolder>() {
 
     private lateinit var restaurantsListener: onItemClickListener
 
@@ -35,26 +34,11 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val currentItem = allRestaurants[position]
+        val currentItem = restaurantsByUser[position]
         holder.tvID.text = currentItem.restaurant_id.toString()
         holder.tvNombre.text = currentItem.nombre
         holder.tvApertura.text = currentItem.fecha_apertura
         holder.tvCierre.text = currentItem.fecha_cierre
-        var prom = currentItem.calificacion
-        holder.tvRating.text = ""
-        var str = ""
-
-        while (prom > 0) {
-            if(prom-1 > 0) {
-                str += "♥"
-                prom -= 1
-            } else if(prom-0.5 > 0) {
-                str += "♡"
-                prom = (prom-0.5).toFloat()
-            }
-        }
-
-        holder.tvRating.text = str
 
         if(currentItem.image != null) {
             val byte = Base64.decode(currentItem.image, 0)
@@ -66,7 +50,7 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
     override fun getItemCount(): Int {
 
 
-        return allRestaurants.size
+        return restaurantsByUser.size
     }
 
     class ViewHolder(itemView : View, listener: onItemClickListener) : RecyclerView.ViewHolder(itemView) {
@@ -76,7 +60,7 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
         val tvNombre = itemView.findViewById<TextView>(R.id.tvCardNombre)
         val tvApertura = itemView.findViewById<TextView>(R.id.tvCardApertura)
         val tvCierre = itemView.findViewById<TextView>(R.id.tvCardCierre)
-        val tvRating = itemView.findViewById<TextView>(R.id.tvCardRating)
+
         init {
 
             itemView.setOnClickListener {
