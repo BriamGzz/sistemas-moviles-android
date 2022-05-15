@@ -2,9 +2,8 @@ package com.example.sismov
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.sismov.Clases.ActiveUser
 import com.example.sismov.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {

@@ -10,11 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sismov.Adapters.CreatedRestaurantsAdapter
 import com.example.sismov.Adapters.HistorialAdapter
+import com.example.sismov.Clases.ActiveUser
 import com.example.sismov.Clases.Cita
 import com.example.sismov.Clases.Restaurante
 import com.google.gson.Gson
@@ -29,6 +31,7 @@ class HistorialFragment : Fragment() {
     private lateinit var datesByUser : ArrayList<Cita>
     private lateinit var restaurantsByUser : ArrayList<Restaurante>
 
+    private lateinit var tvHistorial : TextView
     private lateinit var rvHistorial : RecyclerView
     private lateinit var rvCreatedRest : RecyclerView
     private lateinit var pbHistorial : ProgressBar
@@ -43,6 +46,7 @@ class HistorialFragment : Fragment() {
     }
 
     override fun onResume() {
+        tvHistorial = view?.findViewById(R.id.tvHistorial)!!
         rvHistorial = view?.findViewById(R.id.rvHistorial)!!
         rvCreatedRest = view?.findViewById(R.id.rvCreatedRest)!!
         pbHistorial = view?.findViewById(R.id.pbHistorial)!!
@@ -51,6 +55,7 @@ class HistorialFragment : Fragment() {
         val handler = Handler(Looper.getMainLooper())
 
         if(ActiveUser.getInstance().user_type_id == 0) {
+            tvHistorial.setText(" Tu historial de Citas ")
             rvHistorial.visibility = View.VISIBLE
             rvCreatedRest.visibility = View.GONE
 
@@ -99,6 +104,7 @@ class HistorialFragment : Fragment() {
                 //End Write and Read data with URL
             })
         } else {
+            tvHistorial.setText(" Tus restaurantes creados ")
             rvHistorial.visibility = View.GONE
             rvCreatedRest.visibility = View.VISIBLE
 

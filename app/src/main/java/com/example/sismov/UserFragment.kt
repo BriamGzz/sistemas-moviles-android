@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.drawToBitmap
+import com.example.sismov.Clases.ActiveUser
 import com.example.sismov.Clases.Usuario
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson

@@ -2,7 +2,6 @@ package com.example.sismov
 
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -17,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.drawToBitmap
+import com.example.sismov.Clases.ActiveUser
 import com.example.sismov.Clases.DatePickerFragment
 import com.example.sismov.Clases.TimePickerFragment
 import com.vishnusivadas.advanced_httpurlconnection.PutData
@@ -75,7 +75,7 @@ class NewRestaurantFragment : Fragment() {
         pbNewRestaurant = view?.findViewById(R.id.pbNewRestaurant)!!
 
         Horario.setOnClickListener {
-            showDatePickerDialog(Horario)
+            //showDatePickerDialog(Horario)
             popTimePicker(Horario)
         }
 

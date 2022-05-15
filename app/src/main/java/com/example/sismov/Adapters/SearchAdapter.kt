@@ -12,8 +12,8 @@ import com.example.sismov.Clases.Restaurante
 import com.example.sismov.R
 import org.w3c.dom.Text
 
-class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
-    RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
+class SearchAdapter(private val foundRestaurants: ArrayList<Restaurante>) :
+    RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
     private lateinit var restaurantsListener: onItemClickListener
 
@@ -35,7 +35,7 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val currentItem = allRestaurants[position]
+        val currentItem = foundRestaurants[position]
         holder.tvID.text = currentItem.restaurant_id.toString()
         holder.tvNombre.text = currentItem.nombre
         holder.tvApertura.text = currentItem.fecha_apertura
@@ -64,9 +64,7 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
     }
 
     override fun getItemCount(): Int {
-
-
-        return allRestaurants.size
+        return foundRestaurants.size
     }
 
     class ViewHolder(itemView : View, listener: onItemClickListener) : RecyclerView.ViewHolder(itemView) {

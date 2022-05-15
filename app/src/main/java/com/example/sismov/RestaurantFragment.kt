@@ -14,19 +14,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.widget.doOnTextChanged
-import com.example.sismov.Clases.Calificacion
-import com.example.sismov.Clases.DatePickerFragment
-import com.example.sismov.Clases.Restaurante
-import com.example.sismov.Clases.TimePickerFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.sismov.Clases.*
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.vishnusivadas.advanced_httpurlconnection.PutData
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 class RestaurantFragment : Fragment() {
 
@@ -45,11 +41,12 @@ class RestaurantFragment : Fragment() {
     private lateinit var btnDate : Button
     private lateinit var ivDetailsImage : ImageView
     private lateinit var pbDetails : ProgressBar
+    private lateinit var pbDate : ProgressBar
     private lateinit var tvNumberCalif : TextView
 
     private lateinit var linlay : LinearLayout
 
-
+    var txtChanged = false;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,6 +75,7 @@ class RestaurantFragment : Fragment() {
         linlay = view?.findViewById(R.id.linlayCita)!!
 
         pbDetails = view?.findViewById(R.id.pbDetails)!!
+        pbDate = view?.findViewById(R.id.pbDate)!!
 
         getRestaurantInfo()
         getRatingInfo()
@@ -92,7 +90,20 @@ class RestaurantFragment : Fragment() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if(etPersonas.text.isNotBlank()) {
+                    if (etPersonas.text.last() == '0' || etPersonas.text.last() == '1' || etPersonas.text.last() == '2' || etPersonas.text.last() == '3' || etPersonas.text.last() == '4'
+                        || etPersonas.text.last() == '5' || etPersonas.text.last() == '6' || etPersonas.text.last() == '7' || etPersonas.text.last() == '8' || etPersonas.text.last() == '9'
+                    ) {
+                    } else {
+                        if (etPersonas.text.isNotEmpty()) etPersonas.setText(
+                            etPersonas.text.dropLast(1).toString()
+                        )
+                    }
+                }
 
+                if (etPersonas.text.length == 1) {
+                    if(etPersonas.text.last() == '0') etPersonas.setText("1")
+                }
             }
 
             override fun afterTextChanged(p0: Editable?) {
@@ -128,6 +139,8 @@ class RestaurantFragment : Fragment() {
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 if(ActiveUser.getInstance().user_type_id == 0) {
                     updateMyRating()
+                } else {
+                    Toast.makeText(context, "Necesitas una cuenta de Usuario para calificar", Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -138,6 +151,8 @@ class RestaurantFragment : Fragment() {
 
     private fun getRatingInfo() {
         val handler = Handler(Looper.getMainLooper())
+        pbDetails.visibility = View.VISIBLE;
+
         handler.post(Runnable {
             //Starting Write and Read data with URL
             //Creating array for parameters
@@ -188,6 +203,8 @@ class RestaurantFragment : Fragment() {
     }
 
     private fun updateMyRating() {
+        pbDetails.visibility = View.VISIBLE
+
         val handler = Handler(Looper.getMainLooper())
         handler.post(Runnable {
             //Starting Write and Read data with URL
@@ -297,6 +314,7 @@ class RestaurantFragment : Fragment() {
             //endregion
 
             if (allInfoCorrect) {
+                pbDate.visibility = View.VISIBLE
 
                 val handler = Handler(Looper.getMainLooper())
                 handler.post(Runnable {
@@ -330,7 +348,7 @@ class RestaurantFragment : Fragment() {
                     if (putData.startPut()) {
                         if (putData.onComplete()) {
                             val result = putData.result
-                            pbDetails.visibility = View.GONE;
+                            pbDate.visibility = View.GONE;
                             Log.i("PutData", result)
                             if (result.equals("Cita agendada correctamente")) {
                                 Toast.makeText(context, result, Toast.LENGTH_LONG).show();
@@ -355,23 +373,32 @@ class RestaurantFragment : Fragment() {
     }
 
     private fun setRestaurantInfo() {
-        tvName.setText(thisRestaurant.categoria)
+        if(thisRestaurant.active != 0) {
+            tvName.setText(thisRestaurant.categoria)
 
-        tvCategory.setText(thisRestaurant.categoria)
-        tvApertura.setText(thisRestaurant.fecha_apertura)
-        tvCierre.setText(thisRestaurant.fecha_cierre)
-        etDetails.setText(thisRestaurant.descripcion)
+            tvCategory.setText(thisRestaurant.categoria)
+            tvApertura.setText(thisRestaurant.fecha_apertura)
+            tvCierre.setText(thisRestaurant.fecha_cierre)
+            etDetails.setText(thisRestaurant.descripcion)
 
-        if(thisRestaurant.image != null) {
-            val byte = Base64.decode(thisRestaurant.image, 0)
-            val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
-            ivDetailsImage?.setImageBitmap(bmp)
-        }
+            if (thisRestaurant.image != null) {
+                val byte = Base64.decode(thisRestaurant.image, 0)
+                val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
+                ivDetailsImage?.setImageBitmap(bmp)
+            }
 
-        if (ActiveUser.getInstance().user_type_id == 1) {
-            linlay.visibility = View.GONE
+            if (ActiveUser.getInstance().user_type_id == 1) {
+                linlay.visibility = View.GONE
+            } else {
+                linlay.visibility = View.VISIBLE
+            }
         } else {
-            linlay.visibility = View.VISIBLE
+            val fragment = HomeFragment()
+            val fragmentManager = activity?.supportFragmentManager
+            val fragmentTransaction = fragmentManager?.beginTransaction()
+
+            fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
+            fragmentTransaction?.commit()
         }
     }
 
@@ -404,14 +431,22 @@ class RestaurantFragment : Fragment() {
                     val result = putData.result
                     pbDetails.visibility = View.GONE;
                     Log.i("PutData", result)
-                    if(!result.equals("Error: Database connection")) {
-                        val gson = Gson()
+                    var completed = false
+                    val gson = Gson()
+                    try {
                         thisRestaurant = gson.fromJson(result, Restaurante::class.java)
-                        setRestaurantInfo()
-
-                    } else {
-                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+                        completed = true
+                    } catch (e: java.lang.Exception) {
+                        thisRestaurant = Restaurante()
+                        completed = false
                     }
+
+                    if (!completed) {
+                        Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG).show();
+                    }
+
+                    setRestaurantInfo()
+
                 }
             }
             //End Write and Read data with URL

@@ -1,6 +1,4 @@
-package com.example.sismov;
-
-import java.sql.Blob;
+package com.example.sismov.Clases;
 
 public class ActiveUser {
     private static ActiveUser instance = null;
@@ -16,10 +14,6 @@ public class ActiveUser {
     private static Integer active = 0;
 
     private static Boolean profileOnce = false;
-
-    protected ActiveUser() {
-        // Exists only to defeat instantiation.
-    }
 
     public static ActiveUser getInstance() {
         if(instance == null) {
