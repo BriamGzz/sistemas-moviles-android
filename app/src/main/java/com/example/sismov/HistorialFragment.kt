@@ -52,12 +52,11 @@ class HistorialFragment : Fragment() {
         pbHistorial = view?.findViewById(R.id.pbHistorial)!!
         linlayDatesNoData = view?.findViewById(R.id.linlayDatesNoData)!!
 
-        val handler = Handler(Looper.getMainLooper())
-
         if(ActiveUser.getInstance().user_type_id == 0) {
             tvHistorial.setText(" Tu historial de Citas ")
             rvHistorial.visibility = View.VISIBLE
             rvCreatedRest.visibility = View.GONE
+            val handler = Handler(Looper.getMainLooper())
 
             handler.post(Runnable {
                 //Starting Write and Read data with URL
@@ -108,57 +107,73 @@ class HistorialFragment : Fragment() {
             rvHistorial.visibility = View.GONE
             rvCreatedRest.visibility = View.VISIBLE
 
-            handler.post(Runnable {
-                //Starting Write and Read data with URL
-                //Creating array for parameters
-                val field = arrayOfNulls<String>(1)
-                field[0] = "usuario_id"
-
-                //Creating array for data
-                val data = arrayOfNulls<String>(1)
-                data[0] = ActiveUser.getInstance().id.toString()
-
-                val putData = PutData(
-                    "https://proyectodepsm.000webhostapp.com/getRestaurantsByUser.php",
-                    "POST",
-                    field,
-                    data
-                )
-                if (putData.startPut()) {
-                    if (putData.onComplete()) {
-                        val result = putData.result
-                        pbHistorial.visibility = View.GONE;
-                        Log.i("PutData", result)
-                        var completed = false
-                        val gson = Gson()
-                        val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
-                        try {
-                            restaurantsByUser = gson.fromJson(result, listType)
-                            rvCreatedRest.layoutManager = LinearLayoutManager(context)
-                            rvCreatedRest.setHasFixedSize(true)
-                            completed = true
-                        } catch (e: Exception) {
-                            restaurantsByUser = ArrayList()
-                            completed = false
-                        }
-
-                        if (!completed) {
-                            Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG).show();
-                        }
-
-                        getAllRestaurantsByUser()
-                    }
-                }
-                //End Write and Read data with URL
-            })
+            getAllRestaurantsByUser()
         }
 
         super.onResume()
     }
 
     private fun getAllRestaurantsByUser() {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(1)
+            field[0] = "usuario_id"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(1)
+            data[0] = ActiveUser.getInstance().id.toString()
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/getRestaurantsByUser.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbHistorial.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    var completed = false
+                    val gson = Gson()
+                    val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
+                    try {
+                        restaurantsByUser = gson.fromJson(result, listType)
+                        rvCreatedRest.layoutManager = LinearLayoutManager(context)
+                        rvCreatedRest.setHasFixedSize(true)
+                        completed = true
+                    } catch (e: Exception) {
+                        restaurantsByUser = ArrayList()
+                        completed = false
+                    }
+
+                    if (!completed) {
+                        Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG).show();
+                    }
+
+                    setAllRestaurantsByUser()
+                }
+            }
+            //End Write and Read data with URL
+        })
+    }
+
+    private fun setAllRestaurantsByUser() {
         if(restaurantsByUser.size > 0) {
-            val adapter = CreatedRestaurantsAdapter(restaurantsByUser)
+
+            var callback = object :CreatedRestaurantsAdapter.CallBack{
+                override fun actualizar() {
+                    Toast.makeText(context, "Actualizando", Toast.LENGTH_SHORT).show()
+                    getAllRestaurantsByUser()
+                }
+
+                override fun error() {
+                    Toast.makeText(context, "Algo salio mal", Toast.LENGTH_SHORT).show()
+                }
+            }
+            val adapter = CreatedRestaurantsAdapter(restaurantsByUser, callback)
 
             rvCreatedRest.adapter = adapter
 

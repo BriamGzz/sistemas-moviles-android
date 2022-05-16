@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sismov.Adapters.CreatedRestaurantsAdapter
 import com.example.sismov.Adapters.HistorialAdapter
 import com.example.sismov.Adapters.SearchAdapter
 import com.example.sismov.Clases.Cita
@@ -23,15 +24,22 @@ import java.lang.reflect.Type
 
 class SearchFragment : Fragment() {
 
+    private var advancedSearch = false
+
     lateinit var foundRestaurants : ArrayList<Restaurante>
 
     lateinit var etSearchName : EditText
     lateinit var spSearchCat : Spinner
     lateinit var ibSearch : ImageButton
+    lateinit var ibAdvancedSearch : ImageButton
+    lateinit var rbOrderCreacion : RadioButton
+    lateinit var rbOrderCalificacion : RadioButton
+    lateinit var cbAscendente : CheckBox
     lateinit var pbSearch : ProgressBar
     lateinit var rvSearch : RecyclerView
 
     lateinit var linlaySearch : LinearLayout
+    lateinit var linlayAdvancedSearch : LinearLayout
     lateinit var linlaySearchError : LinearLayout
 
     override fun onCreateView(
@@ -49,32 +57,79 @@ class SearchFragment : Fragment() {
         pbSearch = view?.findViewById(R.id.pbSearch)!!
         rvSearch = view?.findViewById(R.id.rvSearch)!!
 
+        ibAdvancedSearch = view?.findViewById(R.id.ibAdvancedSearch)!!
+        rbOrderCreacion = view?.findViewById(R.id.rbOrderCreacion)!!
+        rbOrderCalificacion = view?.findViewById(R.id.rbOrderCalificacion)!!
+        cbAscendente = view?.findViewById(R.id.cbAscendente)!!
+
         linlaySearch = view?.findViewById(R.id.linlaySearch)!!
+        linlayAdvancedSearch = view?.findViewById(R.id.linlayAdvancedSearch)!!
         linlaySearchError = view?.findViewById(R.id.linlaySearchError)!!
 
         ibSearch.setOnClickListener {
             Search()
         }
 
+        ibAdvancedSearch.setOnClickListener {
+            changeAdvancedSearch(!advancedSearch)
+        }
+
+
         Search()
 
         super.onResume()
     }
 
+    private fun changeAdvancedSearch(isAdvanced:Boolean) {
+        advancedSearch = isAdvanced
+
+        if(advancedSearch) {
+            linlayAdvancedSearch.visibility = View.VISIBLE
+            ibAdvancedSearch.setImageResource(android.R.drawable.arrow_up_float)
+        } else {
+            linlayAdvancedSearch.visibility = View.GONE
+            ibAdvancedSearch.setImageResource(android.R.drawable.arrow_down_float)
+        }
+    }
+
     private fun Search() {
+        var order = "restaurant_id"
+        var ascdsc = "ASC"
+        var cat = ""
+
+        if(advancedSearch) {
+            if(rbOrderCalificacion.isChecked) {
+                order = "calificacion"
+            } else if (rbOrderCreacion.isChecked) {
+                order = "creation_date"
+            }
+
+            ascdsc = if (cbAscendente.isChecked) {
+                "ASC"
+            } else {
+                "DESC"
+            }
+
+            cat = spSearchCat.selectedItem.toString();
+        }
+
         val handler = Handler(Looper.getMainLooper())
         handler.post(Runnable {
             pbSearch.visibility = View.VISIBLE
             //Starting Write and Read data with URL
             //Creating array for parameters
-            val field = arrayOfNulls<String>(2)
+            val field = arrayOfNulls<String>(4)
             field[0] = "nombre"
             field[1] = "categoria"
+            field[2] = "order"
+            field[3] = "ascdsc"
 
             //Creating array for data
-            val data = arrayOfNulls<String>(2)
+            val data = arrayOfNulls<String>(4)
             data[0] = etSearchName.text.toString()
-            data[1] = spSearchCat.selectedItem.toString();
+            data[1] = cat
+            data[2] = order
+            data[3] = ascdsc
 
             val putData = PutData(
                 "https://proyectodepsm.000webhostapp.com/searchForRestaurant.php",
@@ -104,6 +159,7 @@ class SearchFragment : Fragment() {
                         Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG).show();
                     }
 
+                    changeAdvancedSearch(false)
                     showResults()
                 }
             }
