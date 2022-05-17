@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,7 @@ import com.example.sismov.Clases.Restaurante
 import com.google.gson.Gson
 import com.vishnusivadas.advanced_httpurlconnection.PutData
 import com.google.gson.reflect.TypeToken
+import java.lang.Exception
 import java.lang.reflect.Type
 
 
@@ -27,7 +29,8 @@ class HomeFragment : Fragment() {
     private lateinit var tvHome : TextView
     private lateinit var pbHome : ProgressBar
     private lateinit var allRestaurants : ArrayList<Restaurante>
-    private lateinit var allRestaurantsJSON : String
+    private lateinit var linlayHome : LinearLayout
+    private lateinit var linlayHomeError : LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +44,9 @@ class HomeFragment : Fragment() {
         rvAllRestaurants = view?.findViewById<RecyclerView>(R.id.rvAllRestaurants)!!
         tvHome = view?.findViewById<TextView>(R.id.tvHome)!!
         pbHome = view?.findViewById(R.id.pbHome)!!
+
+        linlayHome = view?.findViewById(R.id.linlayHome)!!
+        linlayHomeError = view?.findViewById(R.id.linlayHomeError)!!
 
         pbHome.visibility = View.VISIBLE;
         val handler = Handler(Looper.getMainLooper())
@@ -67,9 +73,28 @@ class HomeFragment : Fragment() {
                     val result = putData.result
                     pbHome.visibility = View.GONE;
                     Log.i("PutData", result)
-                    if(!result.equals("Error: Database connection")) {
+                    var completed : Boolean
+                    val gson = Gson()
+                    val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
+                    try {
+                        allRestaurants = gson.fromJson(result, listType)
+                        rvAllRestaurants.layoutManager = LinearLayoutManager(context)
+                        rvAllRestaurants.setHasFixedSize(true)
+                        completed = true
+                    } catch (e: Exception) {
+                        allRestaurants = ArrayList()
+                        completed = false
+                    }
+
+                    if (!completed) {
+                        Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                            .show();
+                    }
+
+                    getAllRestaurants()
+                    /*if(!result.equals("Error: Database connection")) {
                         val gson = Gson()
-                        val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
+
 
                         allRestaurants = gson.fromJson<ArrayList<Restaurante>>(result, listType)
 
@@ -79,7 +104,7 @@ class HomeFragment : Fragment() {
 
                     } else {
                         Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-                    }
+                    }*/
                 }
             }
             //End Write and Read data with URL
@@ -89,28 +114,33 @@ class HomeFragment : Fragment() {
     }
 
     private fun getAllRestaurants() {
-        val adapter = RestaurantsAdapter(allRestaurants)
+        if(allRestaurants.size > 0) {
+            val adapter = RestaurantsAdapter(allRestaurants)
 
-        rvAllRestaurants.adapter = adapter
+            rvAllRestaurants.adapter = adapter
 
-        adapter.setOnItemSetClickListener(object : RestaurantsAdapter.onItemClickListener{
-            override fun onItemClick(position: Int, restaurant_id: String) {
-                var bundle = Bundle()
+            adapter.setOnItemSetClickListener(object : RestaurantsAdapter.onItemClickListener {
+                override fun onItemClick(position: Int, restaurant_id: String) {
+                    var bundle = Bundle()
 
-                bundle.putString("restaurant_id", restaurant_id)
+                    bundle.putString("restaurant_id", restaurant_id)
 
-                val fragmentManager = activity?.supportFragmentManager
-                val fragmentTransaction = fragmentManager?.beginTransaction()
-                val fragment = RestaurantFragment()
+                    val fragmentManager = activity?.supportFragmentManager
+                    val fragmentTransaction = fragmentManager?.beginTransaction()
+                    val fragment = RestaurantFragment()
 
-                fragment.arguments = bundle
+                    fragment.arguments = bundle
 
-                fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
-                fragmentTransaction?.commit()
+                    fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
+                    fragmentTransaction?.commit()
 
-            }
+                }
 
-        })
+            })
+        } else {
+            linlayHome.visibility = View.GONE
+            linlayHomeError.visibility = View.VISIBLE
+        }
 
     }
 

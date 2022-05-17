@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sismov.Adapters.AdminRestaurantsAdapter
 import com.example.sismov.Adapters.CreatedRestaurantsAdapter
 import com.example.sismov.Adapters.HistorialAdapter
 import com.example.sismov.Clases.ActiveUser
@@ -32,6 +33,7 @@ class HistorialFragment : Fragment() {
     private lateinit var restaurantsByUser : ArrayList<Restaurante>
 
     private lateinit var tvHistorial : TextView
+    private lateinit var tvErrorMsg : TextView
     private lateinit var rvHistorial : RecyclerView
     private lateinit var rvCreatedRest : RecyclerView
     private lateinit var pbHistorial : ProgressBar
@@ -47,70 +49,171 @@ class HistorialFragment : Fragment() {
 
     override fun onResume() {
         tvHistorial = view?.findViewById(R.id.tvHistorial)!!
+        tvErrorMsg = view?.findViewById(R.id.tvErrorMsg)!!
         rvHistorial = view?.findViewById(R.id.rvHistorial)!!
         rvCreatedRest = view?.findViewById(R.id.rvCreatedRest)!!
         pbHistorial = view?.findViewById(R.id.pbHistorial)!!
         linlayDatesNoData = view?.findViewById(R.id.linlayDatesNoData)!!
 
-        if(ActiveUser.getInstance().user_type_id == 0) {
-            tvHistorial.setText(" Tu historial de Citas ")
-            rvHistorial.visibility = View.VISIBLE
-            rvCreatedRest.visibility = View.GONE
-            val handler = Handler(Looper.getMainLooper())
+        when (ActiveUser.getInstance().user_type_id) {
+            0 -> {
+                tvHistorial.setText(" Tu historial de Citas ")
+                rvHistorial.visibility = View.VISIBLE
+                rvCreatedRest.visibility = View.GONE
+                val handler = Handler(Looper.getMainLooper())
 
-            handler.post(Runnable {
-                //Starting Write and Read data with URL
-                //Creating array for parameters
-                val field = arrayOfNulls<String>(1)
-                field[0] = "usuario_id"
+                handler.post(Runnable {
+                    //Starting Write and Read data with URL
+                    //Creating array for parameters
+                    val field = arrayOfNulls<String>(1)
+                    field[0] = "usuario_id"
 
-                //Creating array for data
-                val data = arrayOfNulls<String>(1)
-                data[0] = ActiveUser.getInstance().id.toString()
+                    //Creating array for data
+                    val data = arrayOfNulls<String>(1)
+                    data[0] = ActiveUser.getInstance().id.toString()
 
-                val putData = PutData(
-                    "https://proyectodepsm.000webhostapp.com/getDatesByUser.php",
-                    "POST",
-                    field,
-                    data
-                )
-                if (putData.startPut()) {
-                    if (putData.onComplete()) {
-                        val result = putData.result
-                        pbHistorial.visibility = View.GONE;
-                        Log.i("PutData", result)
-                        var completed = false
-                        val gson = Gson()
-                        val listType: Type = object : TypeToken<ArrayList<Cita>>() {}.type
-                        try {
-                            datesByUser = gson.fromJson(result, listType)
-                            rvHistorial.layoutManager = LinearLayoutManager(context)
-                            rvHistorial.setHasFixedSize(true)
-                            completed = true
-                        } catch (e: Exception) {
-                            datesByUser = ArrayList()
-                            completed = false
+                    val putData = PutData(
+                        "https://proyectodepsm.000webhostapp.com/getDatesByUser.php",
+                        "POST",
+                        field,
+                        data
+                    )
+                    if (putData.startPut()) {
+                        if (putData.onComplete()) {
+                            val result = putData.result
+                            pbHistorial.visibility = View.GONE;
+                            Log.i("PutData", result)
+                            var completed = false
+                            val gson = Gson()
+                            val listType: Type = object : TypeToken<ArrayList<Cita>>() {}.type
+                            try {
+                                datesByUser = gson.fromJson(result, listType)
+                                rvHistorial.layoutManager = LinearLayoutManager(context)
+                                rvHistorial.setHasFixedSize(true)
+                                completed = true
+                            } catch (e: Exception) {
+                                datesByUser = ArrayList()
+                                completed = false
+                            }
+
+                            if (!completed) {
+                                Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                                    .show();
+                            }
+
+                            getAllDatesByUser()
                         }
-
-                        if (!completed) {
-                            Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG)
-                                .show();
-                        }
-
-                        getAllDatesByUser()
                     }
-                }
-                //End Write and Read data with URL
-            })
-        } else {
-            tvHistorial.setText(" Tus restaurantes creados ")
-            rvHistorial.visibility = View.GONE
-            rvCreatedRest.visibility = View.VISIBLE
+                    //End Write and Read data with URL
+                })
+            }
+            1 -> {
+                tvHistorial.setText(" Tus restaurantes creados ")
+                rvHistorial.visibility = View.GONE
+                rvCreatedRest.visibility = View.VISIBLE
 
-            getAllRestaurantsByUser()
+                getAllRestaurantsByUser()
+            }
+            2 -> {
+                tvHistorial.setText(" ACEPTAR O RECHAZAR RESTAURANTES ")
+                rvHistorial.visibility = View.VISIBLE
+                rvCreatedRest.visibility = View.GONE
+                getAdminRestaurants()
+            }
         }
 
         super.onResume()
+    }
+
+    private fun getAdminRestaurants() {
+        val handler = Handler(Looper.getMainLooper())
+
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(1)
+            field[0] = "admin"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(1)
+            data[0] = ActiveUser.getInstance().user_type_id.toString()
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/getRestaurantsAdmin.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    pbHistorial.visibility = View.GONE;
+                    Log.i("PutData", result)
+                    var completed = false
+                    val gson = Gson()
+                    val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
+                    try {
+                        restaurantsByUser = gson.fromJson(result, listType)
+                        rvHistorial.layoutManager = LinearLayoutManager(context)
+                        rvHistorial.setHasFixedSize(true)
+                        completed = true
+                    } catch (e: Exception) {
+                        restaurantsByUser = ArrayList()
+                        completed = false
+                    }
+
+                    if (!completed) {
+                        Toast.makeText(context, "Ha ocurrido un error", Toast.LENGTH_LONG)
+                            .show();
+                    }
+
+                    setAdminRestaurants()
+                }
+            }
+            //End Write and Read data with URL
+        })
+    }
+
+    private fun setAdminRestaurants() {
+        if(restaurantsByUser.size > 0) {
+
+            var callback = object :AdminRestaurantsAdapter.CallBack{
+                override fun actualizar() {
+                    Toast.makeText(context, "Actualizando", Toast.LENGTH_SHORT).show()
+                    getAdminRestaurants()
+                }
+
+                override fun error() {
+                    Toast.makeText(context, "Algo salio mal", Toast.LENGTH_SHORT).show()
+                }
+            }
+            val adapter = AdminRestaurantsAdapter(restaurantsByUser, callback)
+
+            rvHistorial.adapter = adapter
+
+            adapter.setOnItemSetClickListener(object : AdminRestaurantsAdapter.onItemClickListener {
+                override fun onItemClick(position: Int, restaurant_id: String) {
+                    val fragment = RestaurantFragment()
+
+                    var bundle = Bundle()
+                    bundle.putString("restaurant_id", restaurant_id)
+
+                    val fragmentManager = activity?.supportFragmentManager
+                    val fragmentTransaction = fragmentManager?.beginTransaction()
+
+                    fragment.arguments = bundle
+
+                    fragmentTransaction?.replace(R.id.fragmentContainerHome, fragment)
+                    fragmentTransaction?.commit()
+                }
+
+            })
+        } else {
+            tvErrorMsg.setText("Ninguna solicitud de restaurante")
+            linlayDatesNoData.visibility = View.VISIBLE
+            rvCreatedRest.visibility = View.GONE
+            rvHistorial.visibility = View.GONE
+        }
     }
 
     private fun getAllRestaurantsByUser() {
@@ -195,7 +298,10 @@ class HistorialFragment : Fragment() {
 
             })
         } else {
+            tvErrorMsg.setText("Ningún restaurante encontrado")
             linlayDatesNoData.visibility = View.VISIBLE
+            rvCreatedRest.visibility = View.GONE
+            rvHistorial.visibility = View.GONE
         }
     }
 
@@ -224,6 +330,8 @@ class HistorialFragment : Fragment() {
             })
         } else {
             linlayDatesNoData.visibility = View.VISIBLE
+            rvCreatedRest.visibility = View.GONE
+            rvHistorial.visibility = View.GONE
         }
 
     }

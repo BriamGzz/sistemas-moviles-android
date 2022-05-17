@@ -17,8 +17,8 @@ import com.example.sismov.Clases.Restaurante
 import com.example.sismov.R
 import com.vishnusivadas.advanced_httpurlconnection.PutData
 
-class CreatedRestaurantsAdapter(private val restaurantsByUser: ArrayList<Restaurante>, private val callback:CallBack) :
-    RecyclerView.Adapter<CreatedRestaurantsAdapter.ViewHolder>() {
+class AdminRestaurantsAdapter(private val adminRestaurants: ArrayList<Restaurante>, private val callback:CallBack) :
+    RecyclerView.Adapter<AdminRestaurantsAdapter.ViewHolder>() {
 
     private lateinit var restaurantsListener: onItemClickListener
 
@@ -41,8 +41,8 @@ class CreatedRestaurantsAdapter(private val restaurantsByUser: ArrayList<Restaur
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val currentItem = restaurantsByUser[position]
-        holder.btnDelete.visibility = View.VISIBLE
+        val currentItem = adminRestaurants[position]
+        holder.linlayAdmin.visibility = View.VISIBLE
         holder.tvID.text = currentItem.restaurant_id.toString()
         holder.tvNombre.text = currentItem.nombre
         holder.tvApertura.text = currentItem.fecha_apertura
@@ -54,69 +54,56 @@ class CreatedRestaurantsAdapter(private val restaurantsByUser: ArrayList<Restaur
             holder.ivImage.setImageBitmap(bmp)
         }
 
-        if (restaurantsByUser[position].active == 0) {
-            holder.btnDelete.setImageResource(android.R.drawable.ic_input_add)
-            holder.btnDelete.setColorFilter(Color.argb(255, 30, 200, 30))
-        }
-
-        holder.btnDelete.setOnClickListener {
-            var active = restaurantsByUser[position].active
-
-            if (active == 1) {
-                active = 0
-            } else if (active == 0) {
-                active = 1
-            }
-
-            val handler = Handler(Looper.getMainLooper())
-            handler.post(Runnable {
-                //Starting Write and Read data with URL
-                //Creating array for parameters
-                val field = arrayOfNulls<String>(2)
-                field[0] = "active"
-                field[1] = "restaurant_id"
-
-                //Creating array for data
-                val data = arrayOfNulls<String>(2)
-                data[0] = active.toString()
-                data[1] = currentItem.restaurant_id.toString()
-
-                val putData = PutData(
-                    "https://proyectodepsm.000webhostapp.com/updateActiveRestaurant.php",
-                    "POST",
-                    field,
-                    data
-                )
-                if (putData.startPut()) {
-                    if (putData.onComplete()) {
-                        val result = putData.result
-                        if (result.equals("Hecho")) {
-                            callback.actualizar()
-                        } else {
-                            callback.error()
-                        }
-                    }
-                }
-                //End Write and Read data with URL
-            })
-
-        }
-
-        /*
         holder.btnAccept.setOnClickListener {
             holder.tvAccepted.setText("1")
+            changeAccepted(holder.tvAccepted.text.toString(),currentItem.restaurant_id.toString())
         }
 
         holder.btnReject.setOnClickListener {
             holder.tvAccepted.setText("-1")
+            changeAccepted(holder.tvAccepted.text.toString(),currentItem.restaurant_id.toString())
         }
-        */
 
+
+    }
+
+    private fun changeAccepted(accepted : String, restaurant_id : String) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post(Runnable {
+            //Starting Write and Read data with URL
+            //Creating array for parameters
+            val field = arrayOfNulls<String>(2)
+            field[0] = "accepted"
+            field[1] = "restaurant_id"
+
+            //Creating array for data
+            val data = arrayOfNulls<String>(2)
+            data[0] = accepted
+            data[1] = restaurant_id
+
+            val putData = PutData(
+                "https://proyectodepsm.000webhostapp.com/adminRestaurant.php",
+                "POST",
+                field,
+                data
+            )
+            if (putData.startPut()) {
+                if (putData.onComplete()) {
+                    val result = putData.result
+                    if (result.equals("Hecho")) {
+                        callback.actualizar()
+                    } else {
+                        callback.error()
+                    }
+                }
+            }
+            //End Write and Read data with URL
+        })
     }
 
     override fun getItemCount(): Int {
 
-        return restaurantsByUser.size
+        return adminRestaurants.size
     }
 
     class ViewHolder(itemView: View, listener: onItemClickListener) :
@@ -129,14 +116,11 @@ class CreatedRestaurantsAdapter(private val restaurantsByUser: ArrayList<Restaur
         val tvCierre = itemView.findViewById<TextView>(R.id.tvCardCierre)
         val tvAccepted = itemView.findViewById<TextView>(R.id.tvRestaurantAccepted)
 
-
-        val btnDelete = itemView.findViewById<ImageButton>(R.id.ibDeleteRestaurant)
-        /*
         val btnAccept = itemView.findViewById<ImageButton>(R.id.ibAcceptRest)
         val btnReject = itemView.findViewById<ImageButton>(R.id.ibRejectRest)
 
         val linlayAdmin = itemView.findViewById<LinearLayout>(R.id.linlayAdmin)
-        */
+
         init {
 
             itemView.setOnClickListener {

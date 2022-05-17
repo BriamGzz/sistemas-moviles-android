@@ -46,6 +46,14 @@
                     android:text="Ingresa datos del Restaurante:"
                     android:textSize="20sp" />
 
+                <TextView
+                    android:id="@+id/textView32"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="Haga clic en la imagen para cambiarla" />
+
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/ivRegRestaurantImage"
                     android:layout_width="100dp"

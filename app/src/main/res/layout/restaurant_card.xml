@@ -25,6 +25,45 @@
             app:tint="#813434"
             tools:visibility="visible" />
 
+        <LinearLayout
+            android:id="@+id/linlayAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageButton
+                android:id="@+id/ibAcceptRest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:contentDescription="Accept"
+                android:minHeight="48dp"
+                app:srcCompat="@drawable/ic_baseline_done_24" />
+
+            <ImageButton
+                android:id="@+id/ibRejectRest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:contentDescription="Reject"
+                app:srcCompat="@android:drawable/ic_delete" />
+
+            <TextView
+                android:id="@+id/tvRestaurantAccepted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="0"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvCardRestId"
             android:layout_width="wrap_content"

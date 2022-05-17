@@ -7,14 +7,16 @@
 
     <ProgressBar
         android:id="@+id/pbHome"
-        style="?android:attr/progressBarStyle"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|center_vertical"
         android:progressTint="#FF4800"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout
+        android:id="@+id/linlayHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -34,5 +36,30 @@
             android:textAlignment="center"
             tools:itemCount="5"
             tools:listitem="@layout/restaurant_card" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linlayHomeError"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="64dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView8"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/sad_cloud_img" />
+
+        <TextView
+            android:id="@+id/tvErrorMsgHome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="No se han encontrado restaurantes"
+            android:textSize="30sp" />
     </LinearLayout>
 </FrameLayout>

@@ -412,7 +412,7 @@ class RestaurantFragment : Fragment() {
                 ivDetailsImage?.setImageBitmap(bmp)
             }
 
-            if (ActiveUser.getInstance().user_type_id == 1) {
+            if (ActiveUser.getInstance().user_type_id != 0) {
                 linlay.visibility = View.GONE
             } else {
                 linlay.visibility = View.VISIBLE
