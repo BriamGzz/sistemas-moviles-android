@@ -2,8 +2,11 @@ package com.example.sismov
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainer
 import com.example.sismov.Clases.ActiveUser
+import com.example.sismov.Clases.FragmentInterface
 import com.example.sismov.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {
@@ -47,7 +50,9 @@ class HomeActivity : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
+
         fragmentTransaction.replace(R.id.fragmentContainerHome, fragment)
         fragmentTransaction.commit()
     }
+
 }

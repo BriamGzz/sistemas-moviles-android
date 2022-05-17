@@ -64,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
                                 var activeUser =
                                     ActiveUser()
                                 activeUser.email = txtCorreo.text.toString();
-                                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Bienvenido", Toast.LENGTH_LONG).show();
                                 val intent = Intent(this, HomeActivity::class.java)
                                 startActivity(intent)
                                 finish()

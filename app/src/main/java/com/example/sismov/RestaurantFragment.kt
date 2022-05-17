@@ -1,6 +1,10 @@
 package com.example.sismov
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
@@ -14,12 +18,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.Lifecycle
 import com.example.sismov.Clases.*
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.vishnusivadas.advanced_httpurlconnection.PutData
-import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -127,9 +129,7 @@ class RestaurantFragment : Fragment() {
 
         sbRating.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                if(ActiveUser.getInstance().user_type_id == 0) {
-                    tvNumberCalif.text = sbRating.progress.toString()
-                }
+                tvNumberCalif.text = sbRating.progress.toString()
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) {
@@ -147,6 +147,31 @@ class RestaurantFragment : Fragment() {
         })
 
         super.onResume()
+    }
+
+    private fun getEreaserDates() {
+        val sp = activity?.getSharedPreferences("EreaserDate", Context.MODE_PRIVATE)
+
+        val restaurant_id = sp?.getString("restaurant_id", "")
+        val fecha = sp?.getString("fecha", "")
+        val hora = sp?.getString("hora", "")
+        val personas = sp?.getString("personas", "")
+
+        if (restaurant_id != null) {
+            if(restaurant_id.equals(thisRestaurant.restaurant_id.toString())) {
+                if (fecha!=null) {
+                    etFecha.setText(fecha)
+                }
+
+                if (hora!=null) {
+                    etHora.setText(hora)
+                }
+
+                if (personas!=null) {
+                    etPersonas.setText(personas)
+                }
+            }
+        }
     }
 
     private fun getRatingInfo() {
@@ -392,6 +417,9 @@ class RestaurantFragment : Fragment() {
             } else {
                 linlay.visibility = View.VISIBLE
             }
+
+            getEreaserDates()
+
         } else {
             val fragment = HomeFragment()
             val fragmentManager = activity?.supportFragmentManager
@@ -454,6 +482,49 @@ class RestaurantFragment : Fragment() {
 
     }
 
+    override fun onDestroy() {
+        val restaurant_id = thisRestaurant.restaurant_id.toString()
+        val fecha = etFecha.text.toString()
+        val hora = etHora.text.toString()
+        val personas = etPersonas.text.toString()
+
+        val sp = activity?.getSharedPreferences("EreaserDate", Context.MODE_PRIVATE)
+        val editor = sp?.edit()
+
+        if(etFecha.text.toString() != "" || etHora.text.toString() != "" || etPersonas.text.toString() != "") {
+
+            var builder = AlertDialog.Builder(activity)
+
+            builder.setTitle("Cita no registrada")
+            builder.setMessage("Tiene datos sin registrar ¿Qué desea hacer?")
+            builder.setPositiveButton("Guardar como borrador", DialogInterface.OnClickListener{ dialog, id ->
+
+                editor?.putString("restaurant_id", restaurant_id)
+                editor?.putString("fecha", fecha)
+                editor?.putString("hora", hora)
+                editor?.putString("personas", personas)
+                editor?.commit()
+
+                dialog.cancel()
+            })
+            builder.setNegativeButton("Descartar cambios", DialogInterface.OnClickListener{ dialog, id ->
+
+                editor?.putString("restaurant_id", restaurant_id)
+                editor?.putString("fecha", "")
+                editor?.putString("hora", "")
+                editor?.putString("personas", "")
+                editor?.commit()
+
+                dialog.cancel()
+            })
+
+            var alert = builder.create()
+            alert.show()
+        }
+
+        super.onDestroy()
+    }
+
     //region Funciones raras
 
     private fun popTimePicker(editText: EditText) {
@@ -481,6 +552,7 @@ class RestaurantFragment : Fragment() {
 
         activity?.supportFragmentManager?.let { newFragment.show(it, "datePicker") }
     }
+
     //endregion
 
 }
