@@ -1,6 +1,7 @@
 package com.example.sismov
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -163,6 +164,23 @@ class UserFragment : Fragment() {
         btnCerrarSesion?.setOnClickListener {
             btnNewRestaurant?.isClickable = false
             ActiveUser.getInstance().cleanAll()
+
+            val sp = activity?.getSharedPreferences("ActiveUser", Context.MODE_PRIVATE)
+            val editor = sp?.edit()
+
+            editor?.putInt("id", ActiveUser.getInstance().id)
+            editor?.putInt("user_type_id", ActiveUser.getInstance().user_type_id)
+            editor?.putString("name", ActiveUser.getInstance().name)
+            editor?.putString("second_name", ActiveUser.getInstance().second_name)
+            editor?.putString("email", ActiveUser.getInstance().email)
+            editor?.putString("password", ActiveUser.getInstance().password)
+            editor?.putString("imagen", ActiveUser.getInstance().imagen)
+            editor?.putString("phone", ActiveUser.getInstance().phone)
+            editor?.putString("creation_date", ActiveUser.getInstance().creation_date)
+            editor?.putInt("active", ActiveUser.getInstance().active)
+            editor?.putBoolean("profileOnce", ActiveUser.getInstance().profileOnce)
+            editor?.commit()
+
             val intent = Intent(context, LoginActivity::class.java)
             startActivity(intent)
             activity?.finish()
@@ -208,6 +226,32 @@ class UserFragment : Fragment() {
         activeUser.creation_date = user.creation_date
         activeUser.active = user.active
 
+        if(!ActiveUser.getInstance().profileOnce) {
+            ActiveUser.getInstance().profileOnce = true
+
+            val sp = activity?.getSharedPreferences("ActiveUser", Context.MODE_PRIVATE)
+            val editor = sp?.edit()
+
+            editor?.putInt("id", ActiveUser.getInstance().id)
+            editor?.putInt("user_type_id", ActiveUser.getInstance().user_type_id)
+            editor?.putString("name", ActiveUser.getInstance().name)
+            editor?.putString("second_name", ActiveUser.getInstance().second_name)
+            editor?.putString("email", ActiveUser.getInstance().email)
+            editor?.putString("password", ActiveUser.getInstance().password)
+            editor?.putString("imagen", ActiveUser.getInstance().imagen)
+            editor?.putString("phone", ActiveUser.getInstance().phone)
+            editor?.putString("creation_date", ActiveUser.getInstance().creation_date)
+            editor?.putInt("active", ActiveUser.getInstance().active)
+            editor?.putBoolean("profileOnce", ActiveUser.getInstance().profileOnce)
+            editor?.commit()
+
+            val fragmentManager = activity?.supportFragmentManager
+            val fragmentTransaction = fragmentManager?.beginTransaction()
+
+            fragmentTransaction?.replace(R.id.fragmentContainerHome, HomeFragment())
+            fragmentTransaction?.commit()
+        }
+
         if(activeUser.imagen != null) {
             val byte = Base64.decode(activeUser.imagen, 0)
             val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
@@ -229,7 +273,6 @@ class UserFragment : Fragment() {
         profileSName?.setText(activeUser.second_name)
         profilePass?.setText(activeUser.password)
         profileEmail?.setText(activeUser.email)
-
 
     }
 

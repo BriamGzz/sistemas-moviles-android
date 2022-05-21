@@ -1,5 +1,6 @@
 package com.example.sismov
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -24,6 +25,30 @@ class LoginActivity : AppCompatActivity() {
         var txtCorreo = findViewById<EditText>(R.id.etLoginEmail);
         var txtPassword = findViewById<EditText>(R.id.etLoginPassword);
         var pbLogin = findViewById<ProgressBar>(R.id.progressBarLogin);
+
+
+        val sp = getSharedPreferences("ActiveUser", Context.MODE_PRIVATE)
+
+        if(sp.getInt("id",-1) != -1) {
+            ActiveUser.getInstance().id = sp.getInt("id",-1)
+            ActiveUser.getInstance().active = sp.getInt("active",-1)
+            ActiveUser.getInstance().creation_date = sp.getString("creation_date","")
+            ActiveUser.getInstance().email = sp.getString("email","")
+            ActiveUser.getInstance().imagen = sp.getString("imagen","")
+            ActiveUser.getInstance().name = sp.getString("name","")
+            ActiveUser.getInstance().second_name = sp.getString("second_name","")
+            ActiveUser.getInstance().password = sp.getString("password","")
+            ActiveUser.getInstance().phone = sp.getString("phone","")
+            ActiveUser.getInstance().user_type_id = sp.getInt("user_type_id",-1)
+            ActiveUser.getInstance().profileOnce = sp.getBoolean("profileOnce",false)
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+        /*val fecha = sp.getString("fecha", "")
+        val hora = sp.getString("hora", "")
+        val personas = sp.getString("personas", "")
+        */
 
         btnToRegister.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)

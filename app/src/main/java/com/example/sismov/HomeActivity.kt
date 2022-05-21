@@ -41,7 +41,6 @@ class HomeActivity : AppCompatActivity() {
         }
 
         if(!ActiveUser.getInstance().profileOnce) {
-            ActiveUser.getInstance().profileOnce = true
             replaceFragment(fragmentProfile)
         }
 

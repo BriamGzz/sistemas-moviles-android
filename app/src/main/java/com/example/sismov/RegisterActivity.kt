@@ -10,6 +10,8 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -41,62 +43,67 @@ class RegisterActivity : AppCompatActivity() {
 
             if(txtNombre.text.toString() != "" && txtApellidos.text.toString() != "" && txtCorreo.text.toString() != "" &&
                 txtPassword.text.toString() != "" && (txtPassword.text.toString() == txtConfirmPassword.text.toString()) ) {
-                pbRegister.visibility = View.VISIBLE;
 
-                //Codigo para el tipo de usuario
-                var isRestaurant = rbType.isChecked.not();
-                var clientType: Int;
-                
-                if(isRestaurant) {
-                    clientType = 1;
-                } else {
-                    clientType = 0;
-                }
-                //
+                if(txtPassword.text.toString().length >= 8 && isValidPassword(txtPassword.text.toString())) {
+                    pbRegister.visibility = View.VISIBLE;
 
-                val handler = Handler(Looper.getMainLooper())
-                handler.post(Runnable {
-                    //Starting Write and Read data with URL
-                    //Creating array for parameters
-                    val field = arrayOfNulls<String>(5)
-                    field[0] = "name"
-                    field[1] = "secondname"
-                    field[2] = "email"
-                    field[3] = "password"
-                    field[4] = "usertype"
-                    //Creating array for data
-                    val data = arrayOfNulls<String>(5)
-                    data[0] = txtNombre.text.toString()
-                    data[1] = txtApellidos.text.toString()
-                    data[2] = txtCorreo.text.toString()
-                    data[3] = txtPassword.text.toString()
-                    data[4] = clientType.toString();
+                    //Codigo para el tipo de usuario
+                    var isRestaurant = rbType.isChecked.not();
+                    var clientType: Int;
 
-                    val putData = PutData(
-                        //"http://192.168.1.64/php/signup.php",
-                        //"http://192.168.100.9/php/sistemas-moviles-php/signup.php"
-                        "https://proyectodepsm.000webhostapp.com/signup.php",
-                        "POST",
-                        field,
-                        data
-                    )
-                    if (putData.startPut()) {
-                        if (putData.onComplete()) {
-                            val result = putData.result
-                            pbRegister.visibility = View.GONE;
-                            Log.i("PutData", result)
-                            if(result.equals("Sign Up Success")) {
-                                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                                val intent = Intent(this, LoginActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+                    if (isRestaurant) {
+                        clientType = 1;
+                    } else {
+                        clientType = 0;
+                    }
+                    //
+
+                    val handler = Handler(Looper.getMainLooper())
+                    handler.post(Runnable {
+                        //Starting Write and Read data with URL
+                        //Creating array for parameters
+                        val field = arrayOfNulls<String>(5)
+                        field[0] = "name"
+                        field[1] = "secondname"
+                        field[2] = "email"
+                        field[3] = "password"
+                        field[4] = "usertype"
+                        //Creating array for data
+                        val data = arrayOfNulls<String>(5)
+                        data[0] = txtNombre.text.toString()
+                        data[1] = txtApellidos.text.toString()
+                        data[2] = txtCorreo.text.toString()
+                        data[3] = txtPassword.text.toString()
+                        data[4] = clientType.toString();
+
+                        val putData = PutData(
+                            //"http://192.168.1.64/php/signup.php",
+                            //"http://192.168.100.9/php/sistemas-moviles-php/signup.php"
+                            "https://proyectodepsm.000webhostapp.com/signup.php",
+                            "POST",
+                            field,
+                            data
+                        )
+                        if (putData.startPut()) {
+                            if (putData.onComplete()) {
+                                val result = putData.result
+                                pbRegister.visibility = View.GONE;
+                                Log.i("PutData", result)
+                                if (result.equals("Sign Up Success")) {
+                                    Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+                                    val intent = Intent(this, LoginActivity::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
-                    }
-                    //End Write and Read data with URL
-                })
+                        //End Write and Read data with URL
+                    })
+                } else {
+                    Toast.makeText(this, "La contraseña debe contener:\n8 Caracteres\nMínimo un número\nMayúsculas y minúsculas\nY un caracter especial como: @#$%^&+=!", Toast.LENGTH_LONG).show();
+                }
             } else {
                 if(txtNombre.text.toString() == "" || txtApellidos.text.toString() == "" || txtCorreo.text.toString() == "" ||
                     txtPassword.text.toString() == "") {
@@ -110,4 +117,13 @@ class RegisterActivity : AppCompatActivity() {
         }
 
     }
+}
+
+fun isValidPassword(password: String?): Boolean {
+    val pattern: Pattern
+    val matcher: Matcher
+    val PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{4,}$"
+    pattern = Pattern.compile(PASSWORD_PATTERN)
+    matcher = pattern.matcher(password)
+    return matcher.matches()
 }

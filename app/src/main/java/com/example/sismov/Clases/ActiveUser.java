@@ -117,7 +117,7 @@ public class ActiveUser {
         second_name = "";
         email = "";
         password = "";
-        imagen = null;
+        imagen = "";
         phone = "";
         creation_date = "";
         active = 0;
