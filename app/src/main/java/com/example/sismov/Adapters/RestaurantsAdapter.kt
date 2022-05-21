@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sismov.Clases.Restaurante
 import com.example.sismov.R
 import org.w3c.dom.Text
+import java.lang.Exception
 
 class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
     RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
@@ -35,32 +36,39 @@ class RestaurantsAdapter(private val allRestaurants: ArrayList<Restaurante>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val currentItem = allRestaurants[position]
-        holder.tvID.text = currentItem.restaurant_id.toString()
-        holder.tvNombre.text = currentItem.nombre
-        holder.tvApertura.text = currentItem.fecha_apertura
-        holder.tvCierre.text = currentItem.fecha_cierre
-        var prom = currentItem.calificacion
-        holder.tvRating.text = ""
-        var str = " ${currentItem.calificacion} / 10 \n"
+        try {
+            val currentItem = allRestaurants[position]
+            holder.tvID.text = currentItem.restaurant_id.toString()
+            holder.tvNombre.text = currentItem.nombre
+            holder.tvApertura.text = currentItem.fecha_apertura
+            holder.tvCierre.text = currentItem.fecha_cierre
+            var prom = currentItem.calificacion
+            holder.tvRating.text = ""
+            var str = " ${currentItem.calificacion} / 10 \n"
 
-        while (prom > 0) {
-            if(prom-1 >= 0) {
-                str += "★"
-                prom -= 1
-            } else if(prom-0.5 >= 0) {
-                str += "☆"
-                prom = (prom-0.5).toFloat()
+            while (prom > 0) {
+                if(prom-1 >= 0) {
+                    str += "★"
+                    prom -= 1
+                } else if(prom-0.5 >= 0) {
+                    str += "☆"
+                    prom = (prom-0.5).toFloat()
+                }
             }
+
+            holder.tvRating.text = str
+
+            if(currentItem.image != null) {
+                val byte = Base64.decode(currentItem.image, 0)
+                val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
+                holder.ivImage.setImageBitmap(bmp)
+            }
+        } catch (e : Exception) {
+            var error = e
+            error = error
         }
 
-        holder.tvRating.text = str
 
-        if(currentItem.image != null) {
-            val byte = Base64.decode(currentItem.image, 0)
-            val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
-            holder.ivImage.setImageBitmap(bmp)
-        }
     }
 
     override fun getItemCount(): Int {

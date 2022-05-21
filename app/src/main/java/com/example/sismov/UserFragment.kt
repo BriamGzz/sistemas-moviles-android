@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream
 
 class UserFragment : Fragment() {
     private var user = Usuario()
+    private var updating = false;
 
     private var btnConfirmChanges = view?.findViewById<Button>(R.id.btnGuardarCambios)
     private var btnCerrarSesion = view?.findViewById<Button>(R.id.btnCerrarSesion)
@@ -45,7 +46,7 @@ class UserFragment : Fragment() {
     private var btnHistorial = view?.findViewById<FloatingActionButton>(R.id.abtnMore)
 
 
-    private val activeUser = ActiveUser()
+    private val activeUser = ActiveUser.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +54,7 @@ class UserFragment : Fragment() {
     ): View? {
 
         // Inflate the layout for this fragment
-        getUserInfo()
+
 
         return inflater.inflate(R.layout.fragment_user, container, false)
     }
@@ -142,6 +143,7 @@ class UserFragment : Fragment() {
                                 activeUser.email = profileEmail?.text.toString()
                                 profileNewPass?.setText("");
                                 profileNewPassConfirm?.setText("");
+                                updating = true;
                                 getUserInfo()
                             } else {
                                 Toast.makeText(context, result, Toast.LENGTH_LONG).show();
@@ -194,7 +196,7 @@ class UserFragment : Fragment() {
             fragmentTransaction?.commit()
         }
 
-
+        fillInfo()
         super.onResume()
     }
 
@@ -215,44 +217,21 @@ class UserFragment : Fragment() {
 
 
     private fun fillInfo() {
-        activeUser.id = user.id
-        activeUser.user_type_id = user.User_type_id
-        activeUser.name = user.name
-        activeUser.second_name = user.second_name
-        activeUser.email = user.email
-        activeUser.password = user.password
-        activeUser.imagen = user.imagen
-        activeUser.phone = user.phone
-        activeUser.creation_date = user.creation_date
-        activeUser.active = user.active
-
-        if(!ActiveUser.getInstance().profileOnce) {
-            ActiveUser.getInstance().profileOnce = true
-
-            val sp = activity?.getSharedPreferences("ActiveUser", Context.MODE_PRIVATE)
-            val editor = sp?.edit()
-
-            editor?.putInt("id", ActiveUser.getInstance().id)
-            editor?.putInt("user_type_id", ActiveUser.getInstance().user_type_id)
-            editor?.putString("name", ActiveUser.getInstance().name)
-            editor?.putString("second_name", ActiveUser.getInstance().second_name)
-            editor?.putString("email", ActiveUser.getInstance().email)
-            editor?.putString("password", ActiveUser.getInstance().password)
-            editor?.putString("imagen", ActiveUser.getInstance().imagen)
-            editor?.putString("phone", ActiveUser.getInstance().phone)
-            editor?.putString("creation_date", ActiveUser.getInstance().creation_date)
-            editor?.putInt("active", ActiveUser.getInstance().active)
-            editor?.putBoolean("profileOnce", ActiveUser.getInstance().profileOnce)
-            editor?.commit()
-
-            val fragmentManager = activity?.supportFragmentManager
-            val fragmentTransaction = fragmentManager?.beginTransaction()
-
-            fragmentTransaction?.replace(R.id.fragmentContainerHome, HomeFragment())
-            fragmentTransaction?.commit()
+        if(updating) {
+            updating = false;
+            activeUser.id = user.id
+            activeUser.user_type_id = user.User_type_id
+            activeUser.name = user.name
+            activeUser.second_name = user.second_name
+            activeUser.email = user.email
+            activeUser.password = user.password
+            activeUser.imagen = user.imagen
+            activeUser.phone = user.phone
+            activeUser.creation_date = user.creation_date
+            activeUser.active = user.active
         }
 
-        if(activeUser.imagen != null) {
+        if(activeUser.imagen != null && activeUser.imagen != "") {
             val byte = Base64.decode(activeUser.imagen, 0)
             val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size)
             profilePic?.setImageBitmap(bmp)

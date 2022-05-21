@@ -15,13 +15,9 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".LoginActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.Design.Light.NoActionBar" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
@@ -30,14 +26,20 @@
             android:theme="@style/Theme.Design.Light.NoActionBar" />
         <activity
             android:name=".RegisterActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.Design.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.Design.Light.NoActionBar"></activity>
+            android:theme="@style/Theme.Design.Light.NoActionBar">
+
+        </activity>
     </application>
 
 </manifest>

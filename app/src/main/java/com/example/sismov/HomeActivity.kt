@@ -3,6 +3,8 @@ package com.example.sismov
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainer
 import com.example.sismov.Clases.ActiveUser
@@ -10,39 +12,41 @@ import com.example.sismov.Clases.FragmentInterface
 import com.example.sismov.databinding.ActivityHomeBinding
 
 class HomeActivity : AppCompatActivity() {
-    private val transaction = supportFragmentManager.beginTransaction();
-
-    lateinit var binding: ActivityHomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityHomeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_home)
 
         val fragmentProfile = UserFragment();
         val fragmentHome = HomeFragment();
         val fragmentSearch = SearchFragment();
         val fragmentNewRest = NewRestaurantFragment();
 
-        binding.btnHome.setOnClickListener {
+        val btnHome = findViewById<ImageButton>(R.id.btnHome)
+        val btnProfile = findViewById<ImageButton>(R.id.btnProfile)
+        val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
+        val btnNewRestaurant = findViewById<ImageButton>(R.id.btnNewRestaurant)
+
+        btnHome.setOnClickListener {
             replaceFragment(fragmentHome);
         }
 
-        binding.btnProfile.setOnClickListener {
+        btnProfile.setOnClickListener {
             replaceFragment(fragmentProfile);
         }
 
-        binding.btnSearch.setOnClickListener {
+        btnSearch.setOnClickListener {
             replaceFragment(fragmentSearch);
         }
 
-        binding.btnNewRestaurant.setOnClickListener {
+        btnNewRestaurant.setOnClickListener {
             replaceFragment(fragmentNewRest);
         }
 
-        if(!ActiveUser.getInstance().profileOnce) {
+        /*if(!ActiveUser.getInstance().profileOnce) {
             replaceFragment(fragmentProfile)
-        }
+            ActiveUser.getInstance().profileOnce = true
+        }*/
 
     }
 

@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sismov.Adapters.RestaurantsAdapter
+import com.example.sismov.Adapters.SearchAdapter
 import com.example.sismov.Clases.Restaurante
 import com.google.gson.Gson
 import com.vishnusivadas.advanced_httpurlconnection.PutData
@@ -24,7 +25,7 @@ import java.lang.reflect.Type
 
 
 class HomeFragment : Fragment() {
-
+    var completed : Boolean = false
     private lateinit var rvAllRestaurants : RecyclerView
     private lateinit var tvHome : TextView
     private lateinit var pbHome : ProgressBar
@@ -40,7 +41,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onResume() {
-
         rvAllRestaurants = view?.findViewById<RecyclerView>(R.id.rvAllRestaurants)!!
         tvHome = view?.findViewById<TextView>(R.id.tvHome)!!
         pbHome = view?.findViewById(R.id.pbHome)!!
@@ -49,6 +49,14 @@ class HomeFragment : Fragment() {
         linlayHomeError = view?.findViewById(R.id.linlayHomeError)!!
 
         pbHome.visibility = View.VISIBLE;
+
+        setAllRestaurants()
+
+        super.onResume()
+
+    }
+
+    private fun setAllRestaurants() {
         val handler = Handler(Looper.getMainLooper())
         handler.post(Runnable {
             //Starting Write and Read data with URL
@@ -73,7 +81,6 @@ class HomeFragment : Fragment() {
                     val result = putData.result
                     pbHome.visibility = View.GONE;
                     Log.i("PutData", result)
-                    var completed : Boolean
                     val gson = Gson()
                     val listType: Type = object : TypeToken<ArrayList<Restaurante>>() {}.type
                     try {
@@ -92,31 +99,16 @@ class HomeFragment : Fragment() {
                     }
 
                     getAllRestaurants()
-                    /*if(!result.equals("Error: Database connection")) {
-                        val gson = Gson()
 
-
-                        allRestaurants = gson.fromJson<ArrayList<Restaurante>>(result, listType)
-
-                        rvAllRestaurants.layoutManager = LinearLayoutManager(context)
-                        rvAllRestaurants.setHasFixedSize(true)
-                        getAllRestaurants()
-
-                    } else {
-                        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-                    }*/
                 }
             }
             //End Write and Read data with URL
         })
-
-        super.onResume()
     }
 
     private fun getAllRestaurants() {
-        if(allRestaurants.size > 0) {
+        if (allRestaurants.size > 0) {
             val adapter = RestaurantsAdapter(allRestaurants)
-
             rvAllRestaurants.adapter = adapter
 
             adapter.setOnItemSetClickListener(object : RestaurantsAdapter.onItemClickListener {
@@ -135,13 +127,12 @@ class HomeFragment : Fragment() {
                     fragmentTransaction?.commit()
 
                 }
-
             })
+
         } else {
             linlayHome.visibility = View.GONE
             linlayHomeError.visibility = View.VISIBLE
         }
-
     }
 
 }
